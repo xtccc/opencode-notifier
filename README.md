@@ -14,6 +14,17 @@ Add the plugin to your `opencode.json` or `opencode.jsonc`:
 
 Restart OpenCode. The plugin will be automatically installed and loaded.
 
+## Updating
+
+OpenCode caches plugins in `~/.cache/opencode`. To update to the latest version:
+
+1. **Clear the plugin from cache:**
+      ```rm -rf ~/.cache/opencode/node_modules/@mohak34/opencode-notifier```
+2. Restart OpenCode - it will download the latest version.
+
+To check your installed version:
+```cat ~/.cache/opencode/node_modules/@mohak34/opencode-notifier/package.json | grep version```
+
 ## Platform Notes
 
 The plugin works out of the box on all platforms. For best results:
