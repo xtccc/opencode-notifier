@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from "fs"
 import { join } from "path"
 import { homedir } from "os"
 
-export type EventType = "permission" | "complete" | "error"
+export type EventType = "permission" | "complete" | "error" | "question"
 
 export interface EventConfig {
   sound: boolean
@@ -17,16 +17,19 @@ export interface NotifierConfig {
     permission: EventConfig
     complete: EventConfig
     error: EventConfig
+    question: EventConfig
   }
   messages: {
     permission: string
     complete: string
     error: string
+    question: string
   }
   sounds: {
     permission: string | null
     complete: string | null
     error: string | null
+    question: string | null
   }
 }
 
@@ -43,16 +46,19 @@ const DEFAULT_CONFIG: NotifierConfig = {
     permission: { ...DEFAULT_EVENT_CONFIG },
     complete: { ...DEFAULT_EVENT_CONFIG },
     error: { ...DEFAULT_EVENT_CONFIG },
+    question: { ...DEFAULT_EVENT_CONFIG },
   },
   messages: {
     permission: "OpenCode needs permission",
     complete: "OpenCode has finished",
     error: "OpenCode encountered an error",
+    question: "OpenCode has a question",
   },
   sounds: {
     permission: null,
     complete: null,
     error: null,
+    question: null,
   },
 }
 
@@ -111,16 +117,19 @@ export function loadConfig(): NotifierConfig {
         permission: parseEventConfig(userConfig.events?.permission ?? userConfig.permission, defaultWithGlobal),
         complete: parseEventConfig(userConfig.events?.complete ?? userConfig.complete, defaultWithGlobal),
         error: parseEventConfig(userConfig.events?.error ?? userConfig.error, defaultWithGlobal),
+        question: parseEventConfig(userConfig.events?.question, defaultWithGlobal),
       },
       messages: {
         permission: userConfig.messages?.permission ?? DEFAULT_CONFIG.messages.permission,
         complete: userConfig.messages?.complete ?? DEFAULT_CONFIG.messages.complete,
         error: userConfig.messages?.error ?? DEFAULT_CONFIG.messages.error,
+        question: userConfig.messages?.question ?? DEFAULT_CONFIG.messages.question,
       },
       sounds: {
         permission: userConfig.sounds?.permission ?? DEFAULT_CONFIG.sounds.permission,
         complete: userConfig.sounds?.complete ?? DEFAULT_CONFIG.sounds.complete,
         error: userConfig.sounds?.error ?? DEFAULT_CONFIG.sounds.error,
+        question: userConfig.sounds?.question ?? DEFAULT_CONFIG.sounds.question,
       },
     }
   } catch {

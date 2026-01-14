@@ -1,6 +1,6 @@
 # opencode-notifier
 
-OpenCode plugin that plays sounds and sends system notifications when permission is needed, generation completes, or errors occur. Works on macOS, Linux, and Windows.
+OpenCode plugin that plays sounds and sends system notifications when permission is needed, generation completes, errors occur, or the question tool is invoked. Works on macOS, Linux, and Windows.
 
 ## Installation
 
@@ -94,17 +94,20 @@ To customize the plugin, create `~/.config/opencode/opencode-notifier.json`:
   "events": {
     "permission": { "sound": true, "notification": true },
     "complete": { "sound": true, "notification": true },
-    "error": { "sound": true, "notification": true }
+    "error": { "sound": true, "notification": true },
+    "question": { "sound": true, "notification": true }
   },
   "messages": {
     "permission": "OpenCode needs permission",
     "complete": "OpenCode has finished",
-    "error": "OpenCode encountered an error"
+    "error": "OpenCode encountered an error",
+    "question": "OpenCode has a question"
   },
   "sounds": {
     "permission": "/path/to/custom/sound.wav",
     "complete": "/path/to/custom/sound.wav",
-    "error": "/path/to/custom/sound.wav"
+    "error": "/path/to/custom/sound.wav",
+    "question": "/path/to/custom/sound.wav"
   }
 }
 ```
@@ -126,7 +129,8 @@ Control sound and notification separately for each event:
   "events": {
     "permission": { "sound": true, "notification": true },
     "complete": { "sound": false, "notification": true },
-    "error": { "sound": true, "notification": false }
+    "error": { "sound": true, "notification": false },
+    "question": { "sound": true, "notification": true }
   }
 }
 ```
@@ -138,7 +142,8 @@ Or use a boolean to toggle both:
   "events": {
     "permission": true,
     "complete": false,
-    "error": true
+    "error": true,
+    "question": true
   }
 }
 ```
@@ -152,7 +157,8 @@ Customize notification text:
   "messages": {
     "permission": "Action required",
     "complete": "Done!",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "question": "Input needed"
   }
 }
 ```
@@ -166,7 +172,8 @@ Use your own sound files:
   "sounds": {
     "permission": "/home/user/sounds/alert.wav",
     "complete": "/home/user/sounds/done.wav",
-    "error": "/home/user/sounds/error.wav"
+    "error": "/home/user/sounds/error.wav",
+    "question": "/home/user/sounds/question.wav"
   }
 }
 ```

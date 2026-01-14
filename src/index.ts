@@ -23,19 +23,15 @@ async function handleEvent(
   await Promise.allSettled(promises)
 }
 
-export const NotifierPlugin: Plugin = async () => {
+export const NotifierPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
   const config = loadConfig()
 
   return {
     event: async ({ event }) => {
-      // @deprecated: Old permission system (OpenCode v1.0.223 and earlier)
-      // Uses permission.updated event - will be removed in future version
       if (event.type === "permission.updated") {
         await handleEvent(config, "permission")
       }
 
-      // New permission system (OpenCode v1.0.224+)
-      // Uses permission.asked event
       if ((event as any).type === "permission.asked") {
         await handleEvent(config, "permission")
       }
@@ -50,6 +46,11 @@ export const NotifierPlugin: Plugin = async () => {
     },
     "permission.ask": async () => {
       await handleEvent(config, "permission")
+    },
+    "tool.execute.before": async (input, output) => {
+      if (input.tool === "question") {
+        await handleEvent(config, "question")
+      }
     },
   }
 }
