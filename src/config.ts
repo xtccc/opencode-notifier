@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "fs"
-import { join } from "path"
+import { join, dirname } from "path"
 import { homedir } from "os"
+import { fileURLToPath } from "url"
 
 export type EventType = "permission" | "complete" | "subagent_complete" | "error" | "question"
 
@@ -21,6 +22,7 @@ export interface NotifierConfig {
   notification: boolean
   timeout: number
   showProjectName: boolean
+  showIcon: boolean
   command: CommandConfig
   events: {
     permission: EventConfig
@@ -55,6 +57,7 @@ const DEFAULT_CONFIG: NotifierConfig = {
   notification: true,
   timeout: 5,
   showProjectName: true,
+  showIcon: true,
   command: {
     enabled: false,
     path: "",
@@ -147,6 +150,7 @@ export function loadConfig(): NotifierConfig {
           ? userConfig.timeout
           : DEFAULT_CONFIG.timeout,
       showProjectName: userConfig.showProjectName ?? DEFAULT_CONFIG.showProjectName,
+      showIcon: userConfig.showIcon ?? DEFAULT_CONFIG.showIcon,
       command: {
         enabled: typeof userCommand.enabled === "boolean" ? userCommand.enabled : DEFAULT_CONFIG.command.enabled,
         path: typeof userCommand.path === "string" ? userCommand.path : DEFAULT_CONFIG.command.path,
@@ -194,4 +198,24 @@ export function getMessage(config: NotifierConfig, event: EventType): string {
 
 export function getSoundPath(config: NotifierConfig, event: EventType): string | null {
   return config.sounds[event]
+}
+
+export function getIconPath(config: NotifierConfig): string | undefined {
+  if (!config.showIcon) {
+    return undefined
+  }
+  
+  try {
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const iconPath = join(__dirname, "..", "logos", "opencode-logo-dark.png")
+    
+    if (existsSync(iconPath)) {
+      return iconPath
+    }
+  } catch {
+    // Ignore errors - notifications will work without icon
+  }
+  
+  return undefined
 }

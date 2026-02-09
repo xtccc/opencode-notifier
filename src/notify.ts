@@ -23,7 +23,8 @@ const lastNotificationTime: Record<string, number> = {}
 export async function sendNotification(
   title: string,
   message: string,
-  timeout: number
+  timeout: number,
+  iconPath?: string
 ): Promise<void> {
   const now = Date.now()
   if (lastNotificationTime[message] && now - lastNotificationTime[message] < DEBOUNCE_MS) {
@@ -49,7 +50,7 @@ export async function sendNotification(
       title: title,
       message: message,
       timeout: timeout,
-      icon: undefined,
+      icon: iconPath,
     }
 
     platformNotifier.notify(

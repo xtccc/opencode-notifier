@@ -78,9 +78,11 @@ Get-Content "$env:USERPROFILE\.cache\opencode\node_modules\@mohak34\opencode-not
 
 The plugin works out of the box on all platforms. For best results:
 
-- **macOS**: No additional setup required
-- **Windows**: No additional setup required
-- **Linux**: For sounds, one of these should be installed: `paplay`, `aplay`, `mpv`, or `ffplay`. For notifications, `notify-send` is recommended.
+- **macOS**: No additional setup required. Notifications display the Script Editor icon (custom icons not supported with osascript for reliability)
+- **Windows**: No additional setup required. The OpenCode icon displays in notifications
+- **Linux**: For sounds, one of these should be installed: `paplay`, `aplay`, `mpv`, or `ffplay`. For notifications, `notify-send` is recommended. The OpenCode icon displays in notifications
+
+**Note**: To disable icons, set `showIcon: false` in your configuration.
 
 ## Configuration
 
@@ -92,6 +94,7 @@ To customize the plugin, create `~/.config/opencode/opencode-notifier.json`:
   "notification": true,
   "timeout": 5,
   "showProjectName": true,
+  "showIcon": true,
   "command": {
     "enabled": false,
     "path": "/path/to/command",
@@ -130,6 +133,7 @@ To customize the plugin, create `~/.config/opencode/opencode-notifier.json`:
 | `notification` | boolean | `true` | Global toggle for all notifications |
 | `timeout` | number | `5` | Notification duration in seconds (Linux only) |
 | `showProjectName` | boolean | `true` | Show project folder name in notification title |
+| `showIcon` | boolean | `true` | Show OpenCode icon in notifications |
 | `command` | object | — | Command execution settings (enabled/path/args/minDuration) |
 
 ### Events
