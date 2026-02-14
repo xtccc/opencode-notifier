@@ -6,7 +6,22 @@ import { sendNotification } from "./notify"
 import { playSound } from "./sound"
 import { runCommand } from "./command"
 
-function getNotificationTitle(config: NotifierConfig, projectName: string | null): string {
+async function getSessionTitle(
+  client: PluginInput["client"],
+  sessionID: string
+): Promise<string | null> {
+  try {
+    const response = await client.session.get({ path: { id: sessionID } })
+    return response.data?.title ?? null
+  } catch {
+    return null
+  }
+}
+
+function getNotificationTitle(config: NotifierConfig, projectName: string | null, sessionTitle?: string | null): string {
+  if (sessionTitle) {
+    return `OpenCode: ${sessionTitle}`
+  }
   if (config.showProjectName && projectName) {
     return `OpenCode (${projectName})`
   }
@@ -17,14 +32,15 @@ async function handleEvent(
   config: NotifierConfig,
   eventType: EventType,
   projectName: string | null,
-  elapsedSeconds?: number | null
+  elapsedSeconds?: number | null,
+  sessionTitle?: string | null
 ): Promise<void> {
   const promises: Promise<void>[] = []
 
   const message = getMessage(config, eventType)
 
   if (isEventNotificationEnabled(config, eventType)) {
-    const title = getNotificationTitle(config, projectName)
+    const title = getNotificationTitle(config, projectName, sessionTitle)
     const iconPath = getIconPath(config)
     promises.push(sendNotification(title, message, config.timeout, iconPath, config.notificationSystem))
   }
@@ -44,7 +60,8 @@ async function handleEvent(
     elapsedSeconds < minDuration
 
   if (!shouldSkipCommand) {
-    runCommand(config, eventType, message)
+    const title = getNotificationTitle(config, projectName, sessionTitle)
+    runCommand(config, eventType, message, projectName, title)
   }
 
   await Promise.allSettled(promises)
@@ -114,15 +131,19 @@ async function handleEventWithElapsedTime(
     Number.isFinite(minDuration) &&
     minDuration > 0
 
+  const sessionID = getSessionIDFromEvent(event)
+
   let elapsedSeconds: number | null = null
-  if (shouldLookupElapsed) {
-    const sessionID = getSessionIDFromEvent(event)
-    if (sessionID) {
-      elapsedSeconds = await getElapsedSinceLastPrompt(client, sessionID)
-    }
+  if (shouldLookupElapsed && sessionID) {
+    elapsedSeconds = await getElapsedSinceLastPrompt(client, sessionID)
   }
 
-  await handleEvent(config, eventType, projectName, elapsedSeconds)
+  let sessionTitle: string | null = null
+  if (sessionID) {
+    sessionTitle = await getSessionTitle(client, sessionID)
+  }
+
+  await handleEvent(config, eventType, projectName, elapsedSeconds, sessionTitle)
 }
 
 export const NotifierPlugin: Plugin = async ({ client, directory }) => {
@@ -158,11 +179,11 @@ export const NotifierPlugin: Plugin = async ({ client, directory }) => {
       }
     },
     "permission.ask": async () => {
-      await handleEvent(config, "permission", projectName, null)
+      await handleEvent(config, "permission", projectName, null, null)
     },
     "tool.execute.before": async (input) => {
       if (input.tool === "question") {
-        await handleEvent(config, "question", projectName, null)
+        await handleEvent(config, "question", projectName, null, null)
       }
     },
   }
