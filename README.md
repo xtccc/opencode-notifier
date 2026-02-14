@@ -1,6 +1,6 @@
 # opencode-notifier
 
-OpenCode plugin that plays sounds and sends system notifications when permission is needed, generation completes, errors occur, or the question tool is invoked. Works on macOS, Linux, and Windows.
+OpenCode plugin that plays sounds and sends system notifications when permission is needed, generation completes, errors occur, or the question tool is invoked. Features intelligent focus detection to avoid spamming you when you're actively using OpenCode. Works on macOS, Linux, and Windows.
 
 ## Quick Start
 
@@ -8,7 +8,7 @@ Add this to your `opencode.json`:
 
 ```json
 {
-  "plugin": ["@mohak34/opencode-notifier@latest"]
+  "plugin": ["@xtccc/opencode-notifier@latest"]
 }
 ```
 
@@ -19,10 +19,11 @@ Restart OpenCode. Done.
 You'll get notified when:
 - OpenCode needs permission to run something
 - Your session finishes
+- A subagent task completes
 - An error happens  
 - The question tool pops up
 
-There's also `subagent_complete` for when subagents finish, but that's silent by default so you don't get spammed.
+**Smart Focus Detection**: When `suppressWhenFocused` is enabled (default), notifications are delayed. If you interact with OpenCode within the focus window, the notification is suppressed (you're already there!). If you don't respond, the notification is sent after the delay.
 
 ## Setup by platform
 
@@ -54,6 +55,9 @@ Create `~/.config/opencode/opencode-notifier.json` with the defaults:
   "showProjectName": true,
   "showIcon": true,
   "notificationSystem": "osascript",
+  "suppressWhenFocused": true,
+  "focusWindowSeconds": 60,
+  "debug": false,
   "command": {
     "enabled": false,
     "path": "/path/to/command",
@@ -105,6 +109,28 @@ Create `~/.config/opencode/opencode-notifier.json` with the defaults:
 - `showProjectName` - Show folder name in notification title (default: true)
 - `showIcon` - Show OpenCode icon, Windows/Linux only (default: true)
 - `notificationSystem` - macOS only: `"osascript"` or `"node-notifier"` (default: "osascript")
+- `suppressWhenFocused` - Delay notifications; cancel if you interact with OpenCode within the window (default: true)
+- `focusWindowSeconds` - How long to wait before sending notification when suppressWhenFocused is enabled (default: 60)
+- `debug` - Enable debug logging to see plugin activity (default: false)
+
+### Suppress When Focused
+
+When enabled (default), the plugin intelligently avoids spamming you:
+
+1. When an event occurs (e.g., session completes), a timer starts
+2. If you respond to OpenCode within `focusWindowSeconds`, the notification is canceled
+3. If you don't respond, the notification is sent after the delay
+
+This prevents notifications when you're already actively using OpenCode, but ensures you get notified when you step away.
+
+```json
+{
+  "suppressWhenFocused": true,
+  "focusWindowSeconds": 60
+}
+```
+
+Set to `false` to always receive notifications immediately.
 
 ### Events
 
@@ -230,10 +256,10 @@ If Opencode does not update the plugin or there is an issue with the cache versi
 
 ```bash
 # Linux/macOS
-rm -rf ~/.cache/opencode/node_modules/@mohak34/opencode-notifier
+rm -rf ~/.cache/opencode/node_modules/@xtccc/opencode-notifier
 
 # Windows
-Remove-Item -Recurse -Force "$env:USERPROFILE\.cache\opencode\node_modules\@mohak34\opencode-notifier"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.cache\opencode\node_modules\@xtccc\opencode-notifier"
 ```
 
 Then restart OpenCode.
