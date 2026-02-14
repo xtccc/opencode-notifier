@@ -91,7 +91,11 @@ const eventStates: Record<EventType, EventState> = {
 
 ### 结束事件处理
 
-收到结束事件时，设置 `eventType.hasEnded = true`，并取消该事件类型的 pending 通知。
+收到结束事件时，设置 `eventType.hasEnded = true`，并取消该事件类型的 pending 通知，同时重置状态（`startTime = null`, `hasEnded = false`）。
+
+### 用户输入时取消通知
+
+当检测到用户输入时（`tui.input.changed` 事件），调用 `cancelAllPendingNotifications()` 取消所有 pending 通知并重置状态。
 
 ### 通知发送条件
 
