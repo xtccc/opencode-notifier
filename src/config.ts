@@ -24,6 +24,9 @@ export interface NotifierConfig {
   showProjectName: boolean
   showIcon: boolean
   notificationSystem: "osascript" | "node-notifier"
+  suppressWhenFocused: boolean
+  focusWindowSeconds: number
+  debug: boolean
   command: CommandConfig
   events: {
     permission: EventConfig
@@ -60,6 +63,9 @@ const DEFAULT_CONFIG: NotifierConfig = {
   showProjectName: true,
   showIcon: true,
   notificationSystem: "osascript",
+  suppressWhenFocused: true,
+  focusWindowSeconds: 60,
+  debug: false,
   command: {
     enabled: false,
     path: "",
@@ -154,6 +160,14 @@ export function loadConfig(): NotifierConfig {
       showProjectName: userConfig.showProjectName ?? DEFAULT_CONFIG.showProjectName,
       showIcon: userConfig.showIcon ?? DEFAULT_CONFIG.showIcon,
       notificationSystem: userConfig.notificationSystem === "node-notifier" ? "node-notifier" : "osascript",
+      suppressWhenFocused: userConfig.suppressWhenFocused ?? DEFAULT_CONFIG.suppressWhenFocused,
+      focusWindowSeconds:
+        typeof userConfig.focusWindowSeconds === "number" &&
+        Number.isFinite(userConfig.focusWindowSeconds) &&
+        userConfig.focusWindowSeconds > 0
+          ? userConfig.focusWindowSeconds
+          : DEFAULT_CONFIG.focusWindowSeconds,
+      debug: userConfig.debug ?? DEFAULT_CONFIG.debug,
       command: {
         enabled: typeof userCommand.enabled === "boolean" ? userCommand.enabled : DEFAULT_CONFIG.command.enabled,
         path: typeof userCommand.path === "string" ? userCommand.path : DEFAULT_CONFIG.command.path,
